@@ -42,7 +42,7 @@ build-image-migrate:
 		--network "host" \
 		--rm \
 		$(BUILD_IMAGE):$(GIT_SHA) \
-		-timeout 30s \
+		-timeout 300s \
 		-wait \
 		$(DOCKERIZE_URL)
 	docker container run \
