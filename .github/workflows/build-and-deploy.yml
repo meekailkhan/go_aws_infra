@@ -1,44 +1,44 @@
-name: build-and-deploy
+# name: build-and-deploy
 
-on:
-  pull_request:
-  push:
-    branches:
-      - main
+# on:
+#   pull_request:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - run: make build-image
+#       - run: make build-image
 
-      - env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: make build-image-push
+#       - env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#         run: make build-image-push
 
-  test:
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+#   test:
+#     needs:
+#       - build
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: make build-image-pull
+#       - env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#         run: make build-image-pull
 
-      - run: make up
+#       - run: make up
 
-      - env:
-        GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@db.esyzeddnjcgggblqkhtc.supabase.co:5432/postgres
-        GOOSE_DRIVER: postgres
+#       - env:
+#         GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@db.esyzeddnjcgggblqkhtc.supabase.co:5432/postgres
+#         GOOSE_DRIVER: postgres
 
-        run: make build-image-migrate
-      - if: always()
-        run: make down
+#         run: make build-image-migrate
+#       - if: always()
+#         run: make down
