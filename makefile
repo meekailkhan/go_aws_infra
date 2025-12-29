@@ -6,7 +6,7 @@ GIT_SHA := $(shell git rev-parse HEAD)
 BUILD_IMAGE := $(AWS_ECR_DOMAIN)/meekail-cloud-infra
 BUILD_TAG ?= latest
 DOCKERIZE_HOST := $(shell echo $(GOOSE_DBSTRING) | cut -d "@" -f 2 | cut -d ":" -f 1)
-DOCKERIZE_URL := $(if $(DOCKERIZE_HOST),$(DOCKERIZE_HOST):5432,localhost:5432)
+DOCKERIZE_URL  := tcp://$(DOCKERIZE_HOST):5432
 .DEFAULT_GOAL := build 
 
 build:
