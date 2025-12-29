@@ -36,8 +36,9 @@ jobs:
       - run: make up
 
       - env:
-        GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@db.esyzeddnjcgggblqkhtc.supabase.co:5432/postgres
-        GOOSE_DRIVER: postgres
+          GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@localhost:5432/postgres?sslmode=disable
+          GOOSE_DRIVER: postgres
+        run: make build-image-migrate
 
         run: make build-image-migrate
       - if: always()
