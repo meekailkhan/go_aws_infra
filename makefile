@@ -13,12 +13,12 @@ build:
 	go build -o ./goals main.go
 
 build-image:
-	sudo docker buildx build \
+	docker buildx build \
 	--platform "linux/amd64" \
 	--tag "$(BUILD_IMAGE):$(GIT_SHA)-build" \
 	--target "build" \
 	.
-	sudo docker buildx build \
+	docker buildx build \
 		--cache-from "$(BUILD_IMAGE):$(GIT_SHA)-build" \
 		--platform "linux/amd64" \
 		--tag "$(BUILD_IMAGE):$(GIT_SHA)" \
@@ -31,13 +31,13 @@ build-image-login:
 	"$(AWS_ECR_DOMAIN)"
 
 build-image-push: build-image-login
-	sudo docker image push $(BUILD_IMAGE):$(GIT_SHA)
+	docker image push $(BUILD_IMAGE):$(GIT_SHA)
 
 build-image-pull: build-image-login
-	sudo docker image pull $(BUILD_IMAGE):$(GIT_SHA)
+	docker image pull $(BUILD_IMAGE):$(GIT_SHA)
 
 build-image-migrate:
-	sudo docker container run \
+	docker container run \
 		--entrypoint "dockerize" \
 		--network "host" \
 		--rm \
@@ -45,7 +45,7 @@ build-image-migrate:
 		-timeout 30s \
 		-wait \
 		$(DOCKERIZE_URL)
-	sudo docker container run \
+	docker container run \
 		--entrypoint "goose" \
 		--env "GOOSE_DBSTRING" \
 		--env "GOOSE_DRIVER" \
@@ -53,7 +53,7 @@ build-image-migrate:
 		--rm \
 		$(BUILD_IMAGE):$(GIT_SHA) \
 		-dir $(MIGRATION_DIR) status
-	sduo docker container run \
+	docker container run \
 		--entrypoint "goose" \
 		--env "GOOSE_DBSTRING" \
 		--env "GOOSE_DRIVER" \
@@ -61,7 +61,7 @@ build-image-migrate:
 		--rm \
 		$(BUILD_IMAGE):$(GIT_SHA) \
 		-dir $(MIGRATION_DIR) validate
-	sudo docker container run \
+	docker container run \
 		--entrypoint "goose" \
 		--env "GOOSE_DBSTRING" \
 		--env "GOOSE_DRIVER" \
@@ -71,14 +71,14 @@ build-image-migrate:
 		-dir $(MIGRATION_DIR) up
 
 build-image-promote:
-	sudo docker image tag $(BUILD_IMAGE):$(GIT_SHA) $(BUILD_IMAGE):$(BUILD_TAG)
-	sudo docker image push $(BUILD_IMAGE):$(BUILD_TAG)
+	docker image tag $(BUILD_IMAGE):$(GIT_SHA) $(BUILD_IMAGE):$(BUILD_TAG)
+	docker image push $(BUILD_IMAGE):$(BUILD_TAG)
 
 down:
-	sudo docker compose down --remove-orphans --volumes
+	docker compose down --remove-orphans --volumes
 
 up: down
-	sudo docker compose up --detach
+	docker compose up --detach
 
 migrate:
 	goose -dir "$(MIGRATION_DIR)" up
