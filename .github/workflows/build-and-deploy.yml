@@ -36,10 +36,10 @@ jobs:
       - run: make up
 
       - env:
-        GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@db.esyzeddnjcgggblqkhtc.supabase.co:5432/postgres
-        GOOSE_DRIVER: postgres
-
+          GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@localhost:5432/postgres?sslmode=disable
+          GOOSE_DRIVER: postgres
         run: make build-image-migrate
+
       - if: always()
         run: make down
 
@@ -55,7 +55,7 @@ jobs:
       DOCKERIZE_URL: ${{ secrets.GOOSE_DBSTRING }}
       GOOSE_DBSTRING: ${{ secrets.GOOSE_DBSTRING }}
       GOOSE_DRIVER: ${{ vars.GOOSE_DRIVER }}
-    if: github.ref == 'refs/head/main'
+    # if: github.ref == 'refs/head/main'
     needs:
       - test
     runs-on: ubuntu-latest
