@@ -38,7 +38,7 @@ jobs:
       - env:
           GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@localhost:5432/postgres?sslmode=disable
           GOOSE_DRIVER: postgres
-        run: make build-image-migrate-local
+        run: make build-image-migrate
 
       - if: always()
         run: make down
@@ -52,7 +52,7 @@ jobs:
       AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
       AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      DOCKERIZE_URL:  aws-0-ap-south-1.pooler.supabase.com:6543
+      DOCKERIZE_URL: ${{ secrets.GOOSE_DBSTRING }}
       GOOSE_DBSTRING: ${{ secrets.GOOSE_DBSTRING }}
       GOOSE_DRIVER: ${{ vars.GOOSE_DRIVER }}
     # if: github.ref == 'refs/head/main'
@@ -63,5 +63,5 @@ jobs:
       - uses: actions/checkout@v4
 
       - run: make build-image-pull
-      - run: make build-image-migrate-remote
+      - run: make build-image-migrate
       - run: make build-image-promote

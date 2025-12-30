@@ -5,8 +5,8 @@ AWS_ECR_DOMAIN := $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_DEFAULT_REGION).amazonaws.com
 GIT_SHA := $(shell git rev-parse HEAD)
 BUILD_IMAGE := $(AWS_ECR_DOMAIN)/meekail-cloud-infra
 BUILD_TAG ?= latest
-DOCKERIZE_HOST ?= $(shell echo $(GOOSE_DBSTRING) | cut -d "@" -f 2 | cut -d ":" -f 1)
-DOCKERIZE_URL  ?= localhost:5432
+DOCKERIZE_HOST := $(shell echo $(GOOSE_DBSTRING) | cut -d "@" -f 2 | cut -d ":" -f 1)
+DOCKERIZE_URL  := tcp4://localhost:5432
 .DEFAULT_GOAL := build 
 
 build:
@@ -36,32 +36,28 @@ build-image-push: build-image-login
 build-image-pull: build-image-login
 	docker image pull $(BUILD_IMAGE):$(GIT_SHA)
 
-build-image-migrate-local:
+build-image-migrate:
 	docker container run \
 		--entrypoint "dockerize" \
-		--network host \
 		--rm \
 		$(BUILD_IMAGE):$(GIT_SHA) \
 		-timeout 40s \
-		-wait tcp4://localhost:5432
-
+		-wait \
+		$(DOCKERIZE_URL)
 	docker container run \
 		--entrypoint "goose" \
 		--env "GOOSE_DBSTRING" \
 		--env "GOOSE_DRIVER" \
-		--network host \
 		--rm \
 		$(BUILD_IMAGE):$(GIT_SHA) \
-		-dir $(MIGRATION_DIR) up
-
-build-image-migrate-remote:
+		-dir $(MIGRATION_DIR) status
 	docker container run \
-		--entrypoint "dockerize" \
+		--entrypoint "goose" \
+		--env "GOOSE_DBSTRING" \
+		--env "GOOSE_DRIVER" \
 		--rm \
 		$(BUILD_IMAGE):$(GIT_SHA) \
-		-timeout 40s \
-		-wait tcp4://$(DOCKERIZE_URL)
-
+		-dir $(MIGRATION_DIR) validate
 	docker container run \
 		--entrypoint "goose" \
 		--env "GOOSE_DBSTRING" \
