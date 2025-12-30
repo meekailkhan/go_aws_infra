@@ -36,7 +36,7 @@ jobs:
       - run: make up
 
       - env:
-          GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@tcp4://localhost:5432/postgres?sslmode=disable
+          GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@localhost:5432/postgres?sslmode=disable
           GOOSE_DRIVER: postgres
         run: make build-image-migrate
 
