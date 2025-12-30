@@ -36,28 +36,32 @@ build-image-push: build-image-login
 build-image-pull: build-image-login
 	docker image pull $(BUILD_IMAGE):$(GIT_SHA)
 
-build-image-migrate:
+build-image-migrate-local:
+	docker container run \
+		--entrypoint "dockerize" \
+		--network host \
+		--rm \
+		$(BUILD_IMAGE):$(GIT_SHA) \
+		-timeout 40s \
+		-wait tcp4://localhost:5432
+
+	docker container run \
+		--entrypoint "goose" \
+		--env "GOOSE_DBSTRING" \
+		--env "GOOSE_DRIVER" \
+		--network host \
+		--rm \
+		$(BUILD_IMAGE):$(GIT_SHA) \
+		-dir $(MIGRATION_DIR) up
+
+build-image-migrate-remote:
 	docker container run \
 		--entrypoint "dockerize" \
 		--rm \
 		$(BUILD_IMAGE):$(GIT_SHA) \
 		-timeout 40s \
-		-wait \
-		tcp4://$(DOCKERIZE_URL)
-	docker container run \
-		--entrypoint "goose" \
-		--env "GOOSE_DBSTRING" \
-		--env "GOOSE_DRIVER" \
-		--rm \
-		$(BUILD_IMAGE):$(GIT_SHA) \
-		-dir $(MIGRATION_DIR) status
-	docker container run \
-		--entrypoint "goose" \
-		--env "GOOSE_DBSTRING" \
-		--env "GOOSE_DRIVER" \
-		--rm \
-		$(BUILD_IMAGE):$(GIT_SHA) \
-		-dir $(MIGRATION_DIR) validate
+		-wait tcp4://$(DOCKERIZE_URL)
+
 	docker container run \
 		--entrypoint "goose" \
 		--env "GOOSE_DBSTRING" \

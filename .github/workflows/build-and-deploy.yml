@@ -38,7 +38,7 @@ jobs:
       - env:
           GOOSE_DBSTRING: postgresql://postgres:Rehana121aslam@localhost:5432/postgres?sslmode=disable
           GOOSE_DRIVER: postgres
-        run: make build-image-migrate
+        run: make build-image-migrate-local
 
       - if: always()
         run: make down
@@ -63,5 +63,5 @@ jobs:
       - uses: actions/checkout@v4
 
       - run: make build-image-pull
-      - run: make build-image-migrate
+      - run: make build-image-migrate-remote
       - run: make build-image-promote
