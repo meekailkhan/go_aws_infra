@@ -11,6 +11,8 @@ SUPABASE_POOLER_HOST ?= aws-0-us-west-2.pooler.supabase.com
 SUPABASE_POOLER_PORT ?= 6543
 .DEFAULT_GOAL := build 
 
+
+
 build:
 	go build -o ./goals main.go
 
