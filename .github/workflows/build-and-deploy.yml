@@ -55,7 +55,7 @@ jobs:
       DOCKERIZE_URL: ${{ secrets.GOOSE_DBSTRING }}
       GOOSE_DBSTRING: ${{ secrets.GOOSE_DBSTRING }}
       GOOSE_DRIVER: ${{ vars.GOOSE_DRIVER }}
-    # if: github.ref == 'refs/head/main'
+    if: github.ref == 'refs/head/main'
     needs:
       - test
     runs-on: ubuntu-latest

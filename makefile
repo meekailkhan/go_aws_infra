@@ -1,23 +1,23 @@
-MIGRATION_DIR := migration
-AWS_ACCOUNT_ID := 577905065178
+MIGRATION_DIR := migrations
+AWS_ACCOUNT_ID := 677459762413
 AWS_DEFAULT_REGION := us-west-2
 AWS_ECR_DOMAIN := $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_DEFAULT_REGION).amazonaws.com
 GIT_SHA := $(shell git rev-parse HEAD)
-BUILD_IMAGE := $(AWS_ECR_DOMAIN)/meekail-cloud-infra
-BUILD_TAG ?= latest
+BUILD_IMAGE := $(AWS_ECR_DOMAIN)/fem-fd-service-preview
+BUILD_TAG := $(if $(BUILD_TAG),$(BUILD_TAG),latest)
 DOCKERIZE_HOST := $(shell echo $(GOOSE_DBSTRING) | cut -d "@" -f 2 | cut -d ":" -f 1)
-DOCKERIZE_URL  := localhost:5432
-.DEFAULT_GOAL := build 
+DOCKERIZE_URL := tcp://$(if $(DOCKERIZE_HOST),$(DOCKERIZE_HOST):5432,localhost:5432)
+.DEFAULT_GOAL := build
 
 build:
 	go build -o ./goals main.go
 
 build-image:
 	docker buildx build \
-	--platform "linux/amd64" \
-	--tag "$(BUILD_IMAGE):$(GIT_SHA)-build" \
-	--target "build" \
-	.
+		--platform "linux/amd64" \
+		--tag "$(BUILD_IMAGE):$(GIT_SHA)-build" \
+		--target "build" \
+		.
 	docker buildx build \
 		--cache-from "$(BUILD_IMAGE):$(GIT_SHA)-build" \
 		--platform "linux/amd64" \
@@ -26,15 +26,16 @@ build-image:
 
 build-image-login:
 	aws ecr get-login-password --region us-west-2 | docker login \
-	--username AWS \
-	--password-stdin \
-	"$(AWS_ECR_DOMAIN)"
+		--username AWS \
+		--password-stdin \
+		$(AWS_ECR_DOMAIN)
 
-build-image-push: build-image-login
+build-image-push: build-image-login 
 	docker image push $(BUILD_IMAGE):$(GIT_SHA)
 
-build-image-pull: build-image-login
+build-image-pull: build-image-login 
 	docker image pull $(BUILD_IMAGE):$(GIT_SHA)
+
 
 build-image-migrate:
 	docker container run \
@@ -44,7 +45,7 @@ build-image-migrate:
 		$(BUILD_IMAGE):$(GIT_SHA) \
 		-timeout 30s \
 		-wait \
-		tcp4://$(DOCKERIZE_URL)
+		$(DOCKERIZE_URL)
 	docker container run \
 		--entrypoint "goose" \
 		--env "GOOSE_DBSTRING" \
@@ -91,6 +92,3 @@ migrate-validate:
 
 start: build
 	./goals
-
-
-
