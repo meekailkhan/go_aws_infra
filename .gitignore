@@ -1,5 +1,9 @@
 .go
 
+*.tfplan
+.terraform
+overrides.txt
+
 # IDE-specific files
 .vscode/
 
